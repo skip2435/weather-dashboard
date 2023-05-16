@@ -16,7 +16,7 @@
         <h2 class="text-2xl font-bold mb-2">{{ new Date(day.date).toLocaleDateString() }}</h2>
 
         <div class="weather-info flex items-center justify-center">
-          <i class="wi wi-day-sunny text-6xl"></i> <!-- Replace with appropriate class -->
+          <font-awesome-icon :icon="['fas', getWeatherIcon(day.conditions)]" class="text-6xl"/>
           <div class="ml-4">
             <h3 class="text-lg font-semibold">Temperature:</h3>
             <p class="text-xl font-semibold">{{ day.temp }}°C</p>
@@ -39,12 +39,20 @@
 <script>
 import axios from 'axios';
 import mapboxgl from 'mapbox-gl';
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(fas)
 
 const visualCrossingApiKey = import.meta.env.VITE_VUE_APP_VISUAL_CROSSING_API_KEY;
 const mapboxAccessToken = import.meta.env.VITE_VUE_APP_MAPBOX_ACCESS_TOKEN;
 
 export default {
   name: "WeatherUI",
+  components: {
+    FontAwesomeIcon
+  },
   data() {
     return {
       city: '',
@@ -54,8 +62,25 @@ export default {
     };
   },
   methods: {
+    getWeatherIcon(condition) {
+      condition = condition.toLowerCase();
+      if (condition.includes('clear')) {
+        return 'sun';
+      } else if (condition.includes('rain')) {
+        return 'cloud-rain';
+      } else if (condition.includes('cloudy')) {
+        return 'cloud';
+      } else if (condition.includes('snow')) {
+        return 'snowflake';
+      } else if (condition.includes('overcast')) {
+        return 'cloud';
+      } else {
+        return 'question-circle'; // Fallback icon
+      }
+    },
     async getForecast() {
       const response = await axios.get(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${this.city}?key=${import.meta.env.VITE_VISUAL_CROSSING_API_KEY}`);
+
 
       this.forecast = response.data.days.map(day => ({
         date: day.datetime,
@@ -137,4 +162,3 @@ button:active {
   box-shadow: 0px 30px 30px -10px rgba(0, 0, 0, 0.3);
 }
 </style>
-

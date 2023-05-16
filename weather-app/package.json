@@ -19,6 +19,9 @@
         "vue": "^3.2.37"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^6.4.0",
+        "@fortawesome/free-solid-svg-icons": "^6.4.0",
+        "@fortawesome/vue-fontawesome": "^3.0.3",
         "mapbox-gl": "^2.14.1",
         "vue-router": "^4.0.13",
         "weather-icons-lite": "^1.6.1"
