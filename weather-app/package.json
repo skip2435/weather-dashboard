@@ -19,6 +19,7 @@
         "vue": "^3.2.37"
     },
     "dependencies": {
+        "mapbox-gl": "^2.14.1",
         "vue-router": "^4.0.13",
         "weather-icons-lite": "^1.6.1"
     }
