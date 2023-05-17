@@ -9,6 +9,10 @@
       </button>
     </div>
 
+    <div v-if="error" class="error-message">
+      {{ error }}
+    </div>
+
     <div id="map" style="width: 100%; height: 400px"></div>
 
     <div class="grid grid-cols-3 gap-4 mt-4" v-if="forecast">
@@ -58,7 +62,8 @@ export default {
       city: '',
       forecast: null,
       lon: null,
-      lat: null
+      lat: null,
+      error: null
     };
   },
   methods: {
@@ -79,23 +84,32 @@ export default {
       }
     },
     async getForecast() {
-      const response = await axios.get(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${this.city}?key=${import.meta.env.VITE_VISUAL_CROSSING_API_KEY}`);
-
-
-      this.forecast = response.data.days.map(day => ({
-        date: day.datetime,
-        temp: day.temp,
-        feelsLike: day.feelslike,
-        conditions: day.conditions,
-        precipitation: day.precip,
-      }));
-
-      const mapboxResponse = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${this.city}.json?access_token=${mapboxAccessToken}`);
-      if (mapboxResponse.data.features.length > 0) {
-        this.lon = mapboxResponse.data.features[0].center[0];
-        this.lat = mapboxResponse.data.features[0].center[1];
+      if (!this.city) {
+        this.error = 'Please enter a city';
+        return;
       }
-      this.initMap();
+
+      try {
+        const response = await axios.get(`https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${this.city}?key=${import.meta.env.VITE_VISUAL_CROSSING_API_KEY}`);
+
+        this.forecast = response.data.days.map(day => ({
+          date: day.datetime,
+          temp: day.temp,
+          feelsLike: day.feelslike,
+          conditions: day.conditions,
+          precipitation: day.precip,
+        }));
+
+        const mapboxResponse = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${this.city}.json?access_token=${mapboxAccessToken}`);
+        if (mapboxResponse.data.features.length > 0) {
+          this.lon = mapboxResponse.data.features[0].center[0];
+          this.lat = mapboxResponse.data.features[0].center[1];
+        }
+        this.initMap();
+        this.error = null;
+      } catch (error) {
+        this.error = 'Unable to find city. Please enter a valid city.';
+      }
     },
     initMap() {
       mapboxgl.accessToken = mapboxAccessToken;
@@ -109,6 +123,10 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+/* Add your custom styles here */
+</style>
 
 <style scoped>
 .container {
